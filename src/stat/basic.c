@@ -57,6 +57,10 @@
 #define MAX_LIFETIME	100.0	/* max. conn. lifetime in seconds */
 #define BIN_WIDTH	1e-3
 #define NUM_BINS	((u_int) (MAX_LIFETIME / BIN_WIDTH))
+/* max. reply time in seconds */
+#define MAX_REPLY_TIME	(0.050)
+#define REPLY_BIN_WIDTH	(1e-4*5)
+#define REPLY_NUM_BINS	((u_int) (MAX_REPLY_TIME / REPLY_BIN_WIDTH))
 
 static struct {
 	u_long           num_conns_issued;	/* total # of connections * issued */
@@ -105,6 +109,8 @@ static struct {
 
 	u_int           conn_lifetime_hist[NUM_BINS];	/* histogram of
 													 * connection lifetimes */
+	u_int           reply_reponse_hist[REPLY_NUM_BINS];	/* histogram of
+													 * reply times */
 } basic;
 
 static u_long    num_active_conns;
@@ -281,6 +287,13 @@ recv_start(Event_Type et, Object * obj, Any_Type reg_arg, Any_Type call_arg)
 	c->basic.time_recv_start = now;
 	++basic.num_responses;
 
+	u_int bin = (now - c->basic.time_send_start) *
+				REPLY_NUM_BINS / MAX_REPLY_TIME;
+	if (bin >= REPLY_NUM_BINS) {
+		bin = REPLY_NUM_BINS;
+	}
+	++basic.reply_reponse_hist[bin];
+
 	if (periodic_stats) {
 		if (c->reply.status == 200)
 			++basic.num_200;
@@ -456,11 +469,28 @@ dump(void)
 		 reply_rate_avg, basic.reply_rate_max, reply_rate_stddev,
 		 basic.num_reply_rates);
 
+	if (verbose > 1) {
+		printf("\nReply TTFB histogram (time in us, count):\n");
+		for (i = 0; i < REPLY_NUM_BINS; ++i) {
+			time = (i + 0.5) * REPLY_BIN_WIDTH;
+			float Percent = 100.0 * basic.reply_reponse_hist[i] / basic.num_sent;
+			printf("%10.0f: %05.2f%% : ", 1e6 * time, Percent);
+			if (Percent > 0.0) {
+				printf("*");
+				for (n = 1; n < (int)((Percent+5)/10); n++) {
+					printf("*");
+				}
+			}
+			printf("\n");
+		}
+		printf("\n");
+	}
+
 	if (basic.num_responses > 0)
 		resp_time = basic.call_response_sum / basic.num_responses;
 	if (total_replies > 0)
 		xfer_time = basic.call_xfer_sum / total_replies;
-	printf("Reply time [ms]: response %.1f transfer %.1f\n",
+	printf("Reply time avg [ms]: response %.1f transfer %.1f\n",
 		   1e3 * resp_time, 1e3 * xfer_time);
 
 	if (total_replies) {
