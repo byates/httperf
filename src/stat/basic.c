@@ -246,7 +246,7 @@ conn_destroyed(Event_Type et, Object * obj, Any_Type reg_arg, Any_Type c_arg)
 
 		bin = lifetime * NUM_BINS / MAX_LIFETIME;
 		if (bin >= NUM_BINS)
-			bin = NUM_BINS;
+			bin = (NUM_BINS-1);
 		++basic.conn_lifetime_hist[bin];
 	}
 	--num_active_conns;
@@ -290,7 +290,7 @@ recv_start(Event_Type et, Object * obj, Any_Type reg_arg, Any_Type call_arg)
 	u_int bin = (now - c->basic.time_send_start) *
 				REPLY_NUM_BINS / MAX_REPLY_TIME;
 	if (bin >= REPLY_NUM_BINS) {
-		bin = REPLY_NUM_BINS;
+		bin = (REPLY_NUM_BINS-1);
 	}
 	++basic.reply_reponse_hist[bin];
 
