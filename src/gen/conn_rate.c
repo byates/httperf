@@ -64,11 +64,15 @@ make_conn (Any_Type arg)
   if (paused)
     return 0;
 
-  if (num_conns_generated++ >= param.num_conns)
-    return -1;
+  if (num_conns_generated++ >= param.num_conns) {
+    --num_conns_generated;
+    return -2;
+  }
 
-  if (param.max_conns != 0 && num_conns_open >= param.max_conns)
+  if (param.max_conns != 0 && num_conns_open >= param.max_conns) {
+    --num_conns_generated;
     return 0;
+  }
 
   s = conn_new ();
   if (!s)
