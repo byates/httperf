@@ -111,7 +111,7 @@ tick (struct Timer *t, Any_Type arg)
   while (now > rg->next_time)
     {
       delay = (*rg->next_interarrival_time) (rg);
-      if (verbose > 2)
+      if (verbose > 3)
 	fprintf (stderr, "next arrival delay = %.4f\n", delay);
       rg->next_time += delay;
       rg->done = ((*rg->tick) (rg->arg) < 0);

@@ -98,7 +98,7 @@ set_uri (Event_Type et, Call *c)
 
   call_set_uri (c, cp, (buf_end - cp) - 1);
 
-  if (verbose)
+  if (verbose > 2)
     printf ("%s: accessing URI `%s'\n", prog_name, cp);
 }
 

@@ -62,6 +62,8 @@ struct Timer {
 	Any_Type        timer_subject;
 };
 
+static bool timer_dump(Any_Type a);
+
 /*
  * inactive timers 
  */
@@ -274,4 +276,28 @@ timer_cancel(struct Timer *t)
 	 */
 
 	t->has_expired = true;
+}
+
+/*
+ * Debug dump of all timers
+ */
+static bool
+timer_dump(Any_Type a)
+{
+	static int index = 0;
+	struct Timer   *t = a.vp;
+
+	if (verbose) {
+		fprintf(stderr, "timer[%i]:", index++);
+		fprintf(stderr, "  time_started:%f", t->time_started);
+		fprintf(stderr, "  timeout_delay:%f", t->timeout_delay);
+		fprintf(stderr, "  has_expired:%i\n", t->has_expired);
+	}
+	return false;
+}
+
+void dump_all_timers(void)
+{
+	fprintf(stderr, "dump_all_timers(): now=%f\n", timer_now());
+	list_for_each(active_timers, &timer_dump);
 }

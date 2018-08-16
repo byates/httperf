@@ -49,5 +49,5 @@ void     timer_tick(void);
 struct Timer   *timer_schedule(Timer_Callback timeout, Any_Type arg,
 			       Time delay);
 void     timer_cancel(struct Timer * t);
-
+void	dump_all_timers(void);
 #endif /* timer_h */

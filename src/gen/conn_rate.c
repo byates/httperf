@@ -75,14 +75,17 @@ make_conn (Any_Type arg)
   }
 
   s = conn_new ();
-  if (!s)
+  if (!s) {
+    fprintf(stderr, "conn_new() failed\n");
     return -1;
+  }
 
   num_conns_open++;
   if (core_connect (s) == -1) {
     num_conns_generated--;
     num_conns_destroyed--;
     paused = true;
+    fprintf(stderr, "make_conn() PAUSE\n");
   }
   return 0;
 }

@@ -120,7 +120,7 @@ set_uri (Event_Type et, Call * c)
     }
   while (len == 0);
 
-  if (verbose)
+  if (verbose > 2)
     printf ("%s: accessing URI `%s'\n", prog_name, uri);
 }
 

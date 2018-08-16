@@ -58,8 +58,8 @@
 #define BIN_WIDTH	1e-3
 #define NUM_BINS	((u_int) (MAX_LIFETIME / BIN_WIDTH))
 /* max. reply time in seconds */
-#define MAX_REPLY_TIME	(0.050)
-#define REPLY_BIN_WIDTH	(1e-4*5)
+#define MAX_REPLY_TIME	(2.000)
+#define REPLY_BIN_WIDTH	(500*1e-6)
 #define REPLY_NUM_BINS	((u_int) (MAX_REPLY_TIME / REPLY_BIN_WIDTH))
 
 static struct {
@@ -390,7 +390,7 @@ dump(void)
 
 	delta = test_time_stop - test_time_start;
 
-	if (verbose > 1) {
+	if (verbose > 2) {
 		printf("\nConnection lifetime histogram (time in ms):\n");
 		for (i = 0; i < NUM_BINS; ++i)
 			if (basic.conn_lifetime_hist[i]) {
@@ -472,16 +472,16 @@ dump(void)
 	if (verbose > 1) {
 		printf("\nReply TTFB histogram (time in us, count):\n");
 		for (i = 0; i < REPLY_NUM_BINS; ++i) {
-			time = (i + 0.5) * REPLY_BIN_WIDTH;
+			time = (i + 0.0) * REPLY_BIN_WIDTH;
 			float Percent = 100.0 * basic.reply_reponse_hist[i] / basic.num_sent;
-			printf("%10.0f: %05.2f%% : ", 1e6 * time, Percent);
 			if (Percent > 0.0) {
+				printf("%7.0f-%-7.0f: %05.2f%% : ", 1e6 * time, 1e6 * (time + REPLY_BIN_WIDTH), Percent);
 				printf("*");
 				for (n = 1; n < (int)((Percent+5)/10); n++) {
 					printf("*");
 				}
+				printf("\n");
 			}
-			printf("\n");
 		}
 		printf("\n");
 	}
